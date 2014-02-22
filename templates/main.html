@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}home{% endblock %}
+
+{% block content %}
+    <div>
+        <ul>
+            {%  for recent_user in recent_users %}
+               <li> <a href='{{url_for('user_home', name=recent_user.encode('utf-8')) }}'>{{ recent_user }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

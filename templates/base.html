@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Exifweb - {% block title %}{% endblock %}</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link href="/static/css/devbadges.css" rel="stylesheet" media="screen">
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container">
+            <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="brand" href="/"><img src="/static/img/logo.png" alt="devbadges" /></a>
+
+            <div class="nav-collapse collapse">
+                <ul class="nav">
+                    <li class="active"><a href="{{ url_for('index') }}">Home</a></li>
+                    <li><a href="">Badges</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+                <form action="{{ url_for('add_folder') }}" method="post" class="navbar-form pull-right" style="margin-top: 8px">
+                    <input type="text" class="span2" name="directory" value="f:\my pictures\"/>
+                    <input type="submit" class="btn" name="go" value="Scan Folder" />
+                    <input type=hidden value="{{ next or '/' }}" name='next'>
+                </form>
+            </div>
+        </div>
+     </div>
+</div>
+<div class="container">
+	<div class="row">
+	<div class="span12">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class='alert {{ category }}'>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+		<div id="out"></div>
+        {%  block content %}{% endblock %}
+	</div>
+	</div>
+</div>
+{% block scripts %}{% endblock %}
+<script>
+    function badge_feed() {
+        var source = new EventSource('/stream');
+        var out = document.getElementById('out');
+        source.onmessage = function(e) {
+            //skip any rubbish
+            if (e.data == 1) return;
+
+            var data = JSON.parse(e.data);
+
+            {% block stream_script %}
+            if (out.childNodes.length >= 5)
+                out.removeChild(out.childNodes[4]);
+            var data = JSON.parse(e.data);
+            out.innerHTML = '<div class="well">' + data.user + ' was awarded ' + data.badge_title + '(' + data.badge_description + ')</div>' + out.innerHTML;
+            {% endblock %}
+        };
+    }
+    badge_feed();
+
+</script>
+</body>
+</html>
