@@ -23,14 +23,17 @@ def __main__():
             if filenames:
                 read_exif(filenames, directory)
 
-
 def read_exif(files, source_folder):
     with exiftool.ExifTool() as et:
-        metadata = et.get_metadata_batch(files)
+        #j = et.get_metadata('/'.join([source_folder, files[0]]))
+
+        f = ['/'.join([source_folder, j]) for j in files]
+
+        metadata = et.get_metadata_batch(f)
 
     for d in metadata:
-        print("{:20.20} {:20.20}".format(d["SourceFile"],
-                                         d["EXIF:DateTimeOriginal"]))
+
+        print(d["SourceFile"])
 
         conn = urllib3.connection_from_url(progress_url, maxsize=1,
                                         headers={'Content-Type': 'application/json'})
@@ -38,9 +41,10 @@ def read_exif(files, source_folder):
         json = {'folder': source_folder,
                 'file': d["SourceFile"],
                 'lens': d["Lens"],
-                'focal_length': d["Focal Length In 35mm Format"],
-                'apeture': d["Apeture"],
+                'focal_length': d[u'EXIF:FocalLengthIn35mmFormat'],
+                'apeture': d[u'EXIF:FNumber'],
                 'ISO': d["ISO"],
+                'shutter': d[u'EXIF:ExposureTime'],
                 'raw_json': json.dumps(d)
                 }
 
