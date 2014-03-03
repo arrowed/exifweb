@@ -1,2 +1,4 @@
 redis
 flask
+git+git://github.com/smarnach/pyexiftool.git#egg=exiftool
+urllib3
