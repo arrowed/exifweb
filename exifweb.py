@@ -31,13 +31,10 @@ def add_folder():
 
     return render_template('main.html', next=url_for('index'))
 
-@app.route('/updatestatus', methods=['GET', 'POST'])
+@app.route('/update', methods=['GET', 'POST'])
 def update():
-    if request.form['directory'] and request.form['processed'] and request.form['total']:
-
-        directory = request.form['directory']
-        jobs = redis_conn._add_job_to_queue('jobs', directory )
-
+    if request.data:
+        d = json.loads(request.data)
 
     return render_template('main.html', next=url_for('index'))
 
